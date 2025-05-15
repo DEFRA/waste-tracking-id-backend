@@ -5,7 +5,7 @@ export default {
     },
     autoStart: false,
     instance: {
-      dbName: 'cdp-node-backend-template'
+      dbName: 'waste-tracking-id-backend'
     }
   },
   mongoURLEnvName: 'MONGO_URI',
