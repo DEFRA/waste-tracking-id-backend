@@ -5,7 +5,11 @@ export default {
     },
     autoStart: false,
     instance: {
-      dbName: 'waste-tracking-id-backend'
+      dbName: 'waste-tracking-id-backend',
+      replSet: {
+        name: 'rs0',
+        storageEngine: 'wiredTiger'
+      }
     }
   },
   mongoURLEnvName: 'MONGO_URI',

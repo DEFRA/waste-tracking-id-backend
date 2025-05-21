@@ -1,4 +1,7 @@
 import Hapi from '@hapi/hapi'
+import Inert from '@hapi/inert'
+import Vision from '@hapi/vision'
+import HapiSwagger from 'hapi-swagger'
 
 import { config } from './config.js'
 import { router } from './plugins/router.js'
@@ -38,6 +41,16 @@ async function createServer() {
     }
   })
 
+  // Swagger configuration
+  const swaggerOptions = {
+    info: {
+      title: 'Waste Tracking ID API Documentation',
+      version: '1.0.0',
+      description: 'API documentation for the Waste Tracking ID service'
+    },
+    documentationPath: '/documentation'
+  }
+
   // Hapi Plugins:
   // requestLogger  - automatically logs incoming requests
   // requestTracing - trace header logging and propagation
@@ -46,6 +59,12 @@ async function createServer() {
   // mongoDb        - sets up mongo connection pool and attaches to `server` and `request` objects
   // router         - routes used in the app
   await server.register([
+    Inert,
+    Vision,
+    {
+      plugin: HapiSwagger,
+      options: swaggerOptions
+    },
     requestLogger,
     requestTracing,
     secureContext,
