@@ -13,17 +13,17 @@ describe('Token ID Generator', () => {
     // Using 36 characters (26 uppercase letters + 10 digits)
     const possibleCombinations = Math.pow(36, 6)
 
-    
     // One billion is 1,000,000,000
     const oneBillion = 1000000000
-    
+
     // Verify that we have enough combinations to generate one billion unique IDs
     expect(possibleCombinations).toBeGreaterThan(oneBillion)
-    
+
     // Log the actual number of possible combinations for reference
-    console.log(`Possible combinations per year: ${possibleCombinations.toLocaleString()}`)
+    console.log(
+      `Possible combinations per year: ${possibleCombinations.toLocaleString()}`
+    )
   })
-  
 
   test('should generate unique token IDs', () => {
     const tokenId1 = nextTrackerID()
