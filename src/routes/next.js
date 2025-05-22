@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { nextTrackerID } from '../utils/token-id-generator.js'
+import { nextTrackerID } from '../token-id-generator.js'
 const next = {
   method: 'GET',
   path: '/next',
