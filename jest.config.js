@@ -2,6 +2,8 @@ export default {
   rootDir: '.',
   verbose: true,
   resetModules: true,
+  shell: '/usr/local/bin/zsh',
+  testEnvironment: 'node',
   clearMocks: true,
   silent: false,
   preset: '@shelf/jest-mongodb',
