@@ -1,10 +1,23 @@
 import { nextTrackerID } from './token-id-generator.js'
 
+// Mock MongoDB
+const mockDb = {
+  collection: jest.fn().mockReturnThis(),
+  findOneAndUpdate: jest.fn().mockResolvedValue({ counter: 1 })
+}
+
+const mockRequest = {
+  db: mockDb
+}
+
 describe('Token ID Generator', () => {
-  test('should generate a token ID with correct format', () => {
-    const tokenId = nextTrackerID()
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  test('should generate a token ID with correct format', async () => {
+    const tokenId = await nextTrackerID(mockRequest)
     // Check if the token ID matches the expected format (2 digit year + 6 alphanumeric characters)
-    console.log(tokenId)
     expect(tokenId).toMatch(/^\d{2}[A-Z0-9]{6}$/)
   })
 
@@ -25,34 +38,49 @@ describe('Token ID Generator', () => {
     )
   })
 
-  test('should generate unique token IDs', () => {
-    const tokenId1 = nextTrackerID()
-    const tokenId2 = nextTrackerID()
+  test('should generate unique token IDs', async () => {
+    mockDb.findOneAndUpdate
+      .mockResolvedValueOnce({ counter: 1 })
+      .mockResolvedValueOnce({ counter: 2 })
+
+    const tokenId1 = await nextTrackerID(mockRequest)
+    const tokenId2 = await nextTrackerID(mockRequest)
 
     // Check if two consecutive calls generate different IDs
     expect(tokenId1).not.toBe(tokenId2)
   })
 
-  test('should include current year in the token ID', () => {
-    const tokenId = nextTrackerID()
+  test('should include current year in the token ID', async () => {
+    const tokenId = await nextTrackerID(mockRequest)
     const currentYear = new Date().getFullYear().toString().slice(-2)
 
-    // Check if the token ID ends with the current year
+    // Check if the token ID starts with the current year
     expect(tokenId.startsWith(currentYear)).toBe(true)
   })
 
-  test('should generate token ID with correct length', () => {
-    const tokenId = nextTrackerID()
+  test('should generate token ID with correct length', async () => {
+    const tokenId = await nextTrackerID(mockRequest)
 
-    // Check if the total length is 8 ( 2 digit year + 6 alphanumeric characters)
+    // Check if the total length is 8 (2 digit year + 6 alphanumeric characters)
     expect(tokenId.length).toBe(8)
   })
 
-  test('should only contain uppercase letters and numbers in the ID part', () => {
-    const tokenId = nextTrackerID()
-    const idPart = tokenId.split('-')[0]
+  test('should only contain uppercase letters and numbers in the ID part', async () => {
+    const tokenId = await nextTrackerID(mockRequest)
+    const idPart = tokenId.slice(2) // Remove the year part
 
     // Check if the ID part only contains uppercase letters and numbers
     expect(idPart).toMatch(/^[A-Z0-9]+$/)
+  })
+
+  test('should call findOneAndUpdate with correct parameters', async () => {
+    await nextTrackerID(mockRequest)
+
+    expect(mockDb.collection).toHaveBeenCalledWith('counters')
+    expect(mockDb.findOneAndUpdate).toHaveBeenCalledWith(
+      { _id: 'tokenId' },
+      { $inc: { counter: 1 } },
+      { upsert: true, returnDocument: 'after' }
+    )
   })
 })

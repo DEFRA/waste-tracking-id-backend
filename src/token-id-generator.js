@@ -1,14 +1,34 @@
-import { customAlphabet } from 'nanoid'
+import Sqids from 'sqids'
 
-const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-const nanoid = customAlphabet(alphabet, 6)
+const sqids = new Sqids({
+  alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+  minLength: 6
+})
 
 /**
- * Generates a unique token ID based on the current timestamp
- * @returns {string} A unique token ID in format XXXXXX-YY where X is alphanumeric and YY is the year
+ * Gets the next counter value from MongoDB
+ * @param {Object} db - MongoDB database instance
+ * @returns {Promise<number>} The next counter value
  */
-export const nextTrackerID = () => {
+async function getNextCounter(db) {
+  const result = await db
+    .collection('counters')
+    .findOneAndUpdate(
+      { _id: 'tokenId' },
+      { $inc: { counter: 1 } },
+      { upsert: true, returnDocument: 'after' }
+    )
+  return result.counter
+}
+
+/**
+ * Generates a unique token ID based on a sequential counter
+ * @param {Object} request - Hapi request object
+ * @returns {Promise<string>} A unique token ID in format YYXXXXXX where YY is the year and XXXXXX is alphanumeric
+ */
+export const nextTrackerID = async (request) => {
   const year = new Date().getFullYear().toString().slice(-2)
-  const id = nanoid()
+  const counter = await getNextCounter(request.db)
+  const id = sqids.encode([counter])
   return `${year}${id}`
 }

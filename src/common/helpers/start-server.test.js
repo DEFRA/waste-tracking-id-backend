@@ -62,10 +62,18 @@ describe('#startServer', () => {
       )
       expect(mockHapiLoggerInfo).toHaveBeenNthCalledWith(
         2,
-        'Server started successfully'
+        'Setting up MongoDb'
       )
       expect(mockHapiLoggerInfo).toHaveBeenNthCalledWith(
         3,
+        'MongoDb connected to waste-tracking-id-backend'
+      )
+      expect(mockHapiLoggerInfo).toHaveBeenNthCalledWith(
+        4,
+        'Server started successfully'
+      )
+      expect(mockHapiLoggerInfo).toHaveBeenNthCalledWith(
+        5,
         'Access your backend on http://localhost:3098'
       )
     })
