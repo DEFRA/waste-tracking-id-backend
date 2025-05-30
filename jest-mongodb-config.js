@@ -1,14 +1,12 @@
 export default {
   mongodbMemoryServerOptions: {
     binary: {
-      version: '6.0.0',
       skipMD5: true
     },
+    autoStart: false,
     instance: {
-      dbName: 'waste-tracking-id-backend',
-      port: 27017
-    },
-    autoStart: true
+      dbName: 'waste-tracking-id-backend'
+    }
   },
   mongoURLEnvName: 'MONGO_URI',
   useSharedDBForAllJestWorkers: false

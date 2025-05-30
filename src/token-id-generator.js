@@ -11,13 +11,31 @@ const sqids = new Sqids({
  * @returns {Promise<number>} The next counter value
  */
 async function getNextCounter(db) {
-  const result = await db
-    .collection('counters')
-    .findOneAndUpdate(
-      { _id: 'tokenId' },
-      { $inc: { counter: 1 } },
-      { upsert: true, returnDocument: 'after' }
-    )
+  const currentYear = new Date().getFullYear()
+  const result = await db.collection('counters').findOneAndUpdate(
+    { _id: 'tokenId' },
+    [
+      {
+        $set: {
+          year: currentYear,
+          counter: {
+            $cond: {
+              if: { $ne: ['$year', currentYear] },
+              then: 1,
+              else: { $add: ['$counter', 1] }
+            }
+          }
+        }
+      }
+    ],
+    {
+      upsert: true,
+      returnDocument: 'after'
+    }
+  )
+  if (!result || !result.counter) {
+    throw new Error('Failed to get counter value')
+  }
   return result.counter
 }
 
@@ -27,6 +45,9 @@ async function getNextCounter(db) {
  * @returns {Promise<string>} A unique token ID in format YYXXXXXX where YY is the year and XXXXXX is alphanumeric
  */
 export const nextTrackerID = async (request) => {
+  if (!request?.db) {
+    throw new Error('Database instance is required')
+  }
   const year = new Date().getFullYear().toString().slice(-2)
   const counter = await getNextCounter(request.db)
   const id = sqids.encode([counter])

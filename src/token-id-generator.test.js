@@ -1,86 +1,72 @@
+import { MongoClient } from 'mongodb'
 import { nextTrackerID } from './token-id-generator.js'
 
-// Mock MongoDB
-const mockDb = {
-  collection: jest.fn().mockReturnThis(),
-  findOneAndUpdate: jest.fn().mockResolvedValue({ counter: 1 })
-}
+describe('#token-id-generator', () => {
+  let client
+  let db
 
-const mockRequest = {
-  db: mockDb
-}
-
-describe('Token ID Generator', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
+  beforeAll(async () => {
+    client = await MongoClient.connect(global.__MONGO_URI__)
+    db = client.db('waste-tracking-id-backend')
   })
 
-  test('should generate a token ID with correct format', async () => {
-    const tokenId = await nextTrackerID(mockRequest)
-    // Check if the token ID matches the expected format (2 digit year + 6 alphanumeric characters)
-    expect(tokenId).toMatch(/^\d{2}[A-Z0-9]{6}$/)
+  afterAll(async () => {
+    if (client) {
+      await client.close()
+    }
   })
 
-  test('should be able to generate one billion unique IDs in a year', () => {
-    // Calculate total possible combinations for 6 alphanumeric characters
-    // Using 36 characters (26 uppercase letters + 10 digits)
-    const possibleCombinations = Math.pow(36, 6)
+  describe('nextTrackerID', () => {
+    test('Should generate token ID with correct format', async () => {
+      const currentYear = new Date().getFullYear().toString().slice(-2)
+      const result = await nextTrackerID({ db })
 
-    // One billion is 1,000,000,000
-    const oneBillion = 1000000000
+      expect(result).toMatch(new RegExp(`^${currentYear}[A-Z0-9]{6}$`))
+    })
 
-    // Verify that we have enough combinations to generate one billion unique IDs
-    expect(possibleCombinations).toBeGreaterThan(oneBillion)
+    test('Should reset counter when year changes', async () => {
+      // First, set a different year in the database
+      await db
+        .collection('counters')
+        .updateOne(
+          { _id: 'tokenId' },
+          { $set: { year: 2023, counter: 100 } },
+          { upsert: true }
+        )
 
-    // Log the actual number of possible combinations for reference
-    console.log(
-      `Possible combinations per year: ${possibleCombinations.toLocaleString()}`
-    )
-  })
+      const currentYear = new Date().getFullYear()
+      const result = await nextTrackerID({ db })
 
-  test('should generate unique token IDs', async () => {
-    mockDb.findOneAndUpdate
-      .mockResolvedValueOnce({ counter: 1 })
-      .mockResolvedValueOnce({ counter: 2 })
+      expect(result).toMatch(
+        new RegExp(`^${currentYear.toString().slice(-2)}[A-Z0-9]{6}$`)
+      )
 
-    const tokenId1 = await nextTrackerID(mockRequest)
-    const tokenId2 = await nextTrackerID(mockRequest)
+      // Verify counter was reset
+      const counter = await db
+        .collection('counters')
+        .findOne({ _id: 'tokenId' })
+      expect(counter.counter).toBe(1)
+      expect(counter.year).toBe(currentYear)
+    })
 
-    // Check if two consecutive calls generate different IDs
-    expect(tokenId1).not.toBe(tokenId2)
-  })
+    test('Should increment counter within same year', async () => {
+      const currentYear = new Date().getFullYear()
 
-  test('should include current year in the token ID', async () => {
-    const tokenId = await nextTrackerID(mockRequest)
-    const currentYear = new Date().getFullYear().toString().slice(-2)
+      // First call
+      const result1 = await nextTrackerID({ db })
+      const counter1 = await db
+        .collection('counters')
+        .findOne({ _id: 'tokenId' })
 
-    // Check if the token ID starts with the current year
-    expect(tokenId.startsWith(currentYear)).toBe(true)
-  })
+      // Second call
+      const result2 = await nextTrackerID({ db })
+      const counter2 = await db
+        .collection('counters')
+        .findOne({ _id: 'tokenId' })
 
-  test('should generate token ID with correct length', async () => {
-    const tokenId = await nextTrackerID(mockRequest)
-
-    // Check if the total length is 8 (2 digit year + 6 alphanumeric characters)
-    expect(tokenId.length).toBe(8)
-  })
-
-  test('should only contain uppercase letters and numbers in the ID part', async () => {
-    const tokenId = await nextTrackerID(mockRequest)
-    const idPart = tokenId.slice(2) // Remove the year part
-
-    // Check if the ID part only contains uppercase letters and numbers
-    expect(idPart).toMatch(/^[A-Z0-9]+$/)
-  })
-
-  test('should call findOneAndUpdate with correct parameters', async () => {
-    await nextTrackerID(mockRequest)
-
-    expect(mockDb.collection).toHaveBeenCalledWith('counters')
-    expect(mockDb.findOneAndUpdate).toHaveBeenCalledWith(
-      { _id: 'tokenId' },
-      { $inc: { counter: 1 } },
-      { upsert: true, returnDocument: 'after' }
-    )
+      expect(result1).not.toBe(result2)
+      expect(counter2.counter).toBe(counter1.counter + 1)
+      expect(counter2.year).toBe(currentYear)
+    })
   })
 })
