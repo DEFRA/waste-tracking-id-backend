@@ -1,58 +1,72 @@
+import { MongoClient } from 'mongodb'
 import { nextTrackerID } from './token-id-generator.js'
 
-describe('Token ID Generator', () => {
-  test('should generate a token ID with correct format', () => {
-    const tokenId = nextTrackerID()
-    // Check if the token ID matches the expected format (2 digit year + 6 alphanumeric characters)
-    console.log(tokenId)
-    expect(tokenId).toMatch(/^\d{2}[A-Z0-9]{6}$/)
+describe('#token-id-generator', () => {
+  let client
+  let db
+
+  beforeAll(async () => {
+    client = await MongoClient.connect(global.__MONGO_URI__)
+    db = client.db('waste-tracking-id-backend')
   })
 
-  test('should be able to generate one billion unique IDs in a year', () => {
-    // Calculate total possible combinations for 6 alphanumeric characters
-    // Using 36 characters (26 uppercase letters + 10 digits)
-    const possibleCombinations = Math.pow(36, 6)
-
-    // One billion is 1,000,000,000
-    const oneBillion = 1000000000
-
-    // Verify that we have enough combinations to generate one billion unique IDs
-    expect(possibleCombinations).toBeGreaterThan(oneBillion)
-
-    // Log the actual number of possible combinations for reference
-    console.log(
-      `Possible combinations per year: ${possibleCombinations.toLocaleString()}`
-    )
+  afterAll(async () => {
+    if (client) {
+      await client.close()
+    }
   })
 
-  test('should generate unique token IDs', () => {
-    const tokenId1 = nextTrackerID()
-    const tokenId2 = nextTrackerID()
+  describe('nextTrackerID', () => {
+    test('Should generate token ID with correct format', async () => {
+      const currentYear = new Date().getFullYear().toString().slice(-2)
+      const result = await nextTrackerID({ db })
 
-    // Check if two consecutive calls generate different IDs
-    expect(tokenId1).not.toBe(tokenId2)
-  })
+      expect(result).toMatch(new RegExp(`^${currentYear}[A-Z0-9]{6}$`))
+    })
 
-  test('should include current year in the token ID', () => {
-    const tokenId = nextTrackerID()
-    const currentYear = new Date().getFullYear().toString().slice(-2)
+    test('Should reset counter when year changes', async () => {
+      // First, set a different year in the database
+      await db
+        .collection('counters')
+        .updateOne(
+          { _id: 'tokenId' },
+          { $set: { year: 2023, counter: 100 } },
+          { upsert: true }
+        )
 
-    // Check if the token ID ends with the current year
-    expect(tokenId.startsWith(currentYear)).toBe(true)
-  })
+      const currentYear = new Date().getFullYear()
+      const result = await nextTrackerID({ db })
 
-  test('should generate token ID with correct length', () => {
-    const tokenId = nextTrackerID()
+      expect(result).toMatch(
+        new RegExp(`^${currentYear.toString().slice(-2)}[A-Z0-9]{6}$`)
+      )
 
-    // Check if the total length is 8 ( 2 digit year + 6 alphanumeric characters)
-    expect(tokenId.length).toBe(8)
-  })
+      // Verify counter was reset
+      const counter = await db
+        .collection('counters')
+        .findOne({ _id: 'tokenId' })
+      expect(counter.counter).toBe(1)
+      expect(counter.year).toBe(currentYear)
+    })
 
-  test('should only contain uppercase letters and numbers in the ID part', () => {
-    const tokenId = nextTrackerID()
-    const idPart = tokenId.split('-')[0]
+    test('Should increment counter within same year', async () => {
+      const currentYear = new Date().getFullYear()
 
-    // Check if the ID part only contains uppercase letters and numbers
-    expect(idPart).toMatch(/^[A-Z0-9]+$/)
+      // First call
+      const result1 = await nextTrackerID({ db })
+      const counter1 = await db
+        .collection('counters')
+        .findOne({ _id: 'tokenId' })
+
+      // Second call
+      const result2 = await nextTrackerID({ db })
+      const counter2 = await db
+        .collection('counters')
+        .findOne({ _id: 'tokenId' })
+
+      expect(result1).not.toBe(result2)
+      expect(counter2.counter).toBe(counter1.counter + 1)
+      expect(counter2.year).toBe(currentYear)
+    })
   })
 })

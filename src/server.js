@@ -6,6 +6,7 @@ import HapiSwagger from 'hapi-swagger'
 import { config } from './config.js'
 import { router } from './plugins/router.js'
 import { requestLogger } from './common/helpers/logging/request-logger.js'
+import { mongoDb } from './common/helpers/mongodb.js'
 import { failAction } from './common/helpers/fail-action.js'
 import { secureContext } from './common/helpers/secure-context/index.js'
 import { pulse } from './common/helpers/pulse.js'
@@ -68,6 +69,7 @@ async function createServer() {
     requestTracing,
     secureContext,
     pulse,
+    mongoDb,
     router
   ])
 
