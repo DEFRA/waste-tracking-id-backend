@@ -2,8 +2,6 @@ export default {
   rootDir: '.',
   verbose: true,
   resetModules: true,
-  shell: '/usr/local/bin/zsh',
-  testEnvironment: 'node',
   clearMocks: true,
   silent: false,
   preset: '@shelf/jest-mongodb',
@@ -25,8 +23,7 @@ export default {
   transformIgnorePatterns: [
     `node_modules/(?!${[
       '@defra/hapi-tracing', // Supports ESM only
-      'node-fetch', // Supports ESM only
-      'nanoid' // Supports ESM only
+      'node-fetch' // Supports ESM only
     ].join('|')}/)`
   ]
 }

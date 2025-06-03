@@ -14,7 +14,7 @@ const next = {
     },
     handler: async (request, h) => {
       return h.response({
-        wasteTrackingId: nextTrackerID()
+        wasteTrackingId: await nextTrackerID(request)
       })
     }
   }
