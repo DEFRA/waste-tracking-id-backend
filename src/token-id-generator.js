@@ -1,5 +1,8 @@
 import Sqids from 'sqids'
 
+// Number of digits to use from the year for the token ID prefix
+export const YEAR_DIGITS_LENGTH = 2
+
 const sqids = new Sqids({
   alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
   minLength: 6
@@ -33,7 +36,7 @@ async function getNextCounter(db) {
       returnDocument: 'after'
     }
   )
-  if (!result || !result.counter) {
+  if (!result?.counter) {
     throw new Error('Failed to get counter value')
   }
   return result.counter
@@ -48,7 +51,7 @@ export const nextTrackerID = async (request) => {
   if (!request?.db) {
     throw new Error('Database instance is required')
   }
-  const year = new Date().getFullYear().toString().slice(-2)
+  const year = new Date().getFullYear().toString().slice(-YEAR_DIGITS_LENGTH)
   const counter = await getNextCounter(request.db)
   const id = sqids.encode([counter])
   return `${year}${id}`
