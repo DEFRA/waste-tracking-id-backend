@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb'
-import { nextTrackerID } from './token-id-generator.js'
+import { nextTrackerID, YEAR_DIGITS_LENGTH } from './token-id-generator.js'
 
 describe('#token-id-generator', () => {
   let client
@@ -18,7 +18,10 @@ describe('#token-id-generator', () => {
 
   describe('nextTrackerID', () => {
     test('Should generate token ID with correct format', async () => {
-      const currentYear = new Date().getFullYear().toString().slice(-2)
+      const currentYear = new Date()
+        .getFullYear()
+        .toString()
+        .slice(-YEAR_DIGITS_LENGTH)
       const result = await nextTrackerID({ db })
 
       expect(result).toMatch(new RegExp(`^${currentYear}[A-Z0-9]{6}$`))
@@ -38,7 +41,9 @@ describe('#token-id-generator', () => {
       const result = await nextTrackerID({ db })
 
       expect(result).toMatch(
-        new RegExp(`^${currentYear.toString().slice(-2)}[A-Z0-9]{6}$`)
+        new RegExp(
+          `^${currentYear.toString().slice(-YEAR_DIGITS_LENGTH)}[A-Z0-9]{6}$`
+        )
       )
 
       // Verify counter was reset
