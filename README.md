@@ -84,13 +84,14 @@ We recommend using [nvm](https://github.com/creationix/nvm) (Node Version Manage
 ### Clone and Install
 
 1. Clone the repository:
+
    ```bash
-   cd /Users/abideenonalaja/Projects/DEFRA
    git clone <repository-url> waste-tracking-id-backend
    cd waste-tracking-id-backend
    ```
 
 2. Use the correct Node.js version:
+
    ```bash
    nvm use
    ```
@@ -105,6 +106,7 @@ We recommend using [nvm](https://github.com/creationix/nvm) (Node Version Manage
 The easiest way to run the service locally with all dependencies:
 
 1. Start all services (MongoDB, Redis, LocalStack, and the application):
+
    ```bash
    docker compose up --build -d
    ```
@@ -112,6 +114,7 @@ The easiest way to run the service locally with all dependencies:
 2. The service will be available at `http://localhost:3001`
 
 3. View logs:
+
    ```bash
    docker compose logs -f waste-tracking-id-backend
    ```
@@ -128,6 +131,7 @@ If you prefer to run the service directly on your machine:
 1. Ensure MongoDB is running locally on `mongodb://127.0.0.1:27017`
 
 2. Start the development server:
+
    ```bash
    npm run dev
    ```
@@ -137,11 +141,13 @@ If you prefer to run the service directly on your machine:
 ### Verify Setup
 
 1. Check the health endpoint:
+
    ```bash
    curl http://localhost:3001/health
    ```
 
 2. Generate a waste tracking ID:
+
    ```bash
    curl http://localhost:3001/next
    ```
@@ -150,21 +156,23 @@ If you prefer to run the service directly on your machine:
 
 ## API Endpoints
 
-| Method | Endpoint          | Description                                           |
-|:-------|:------------------|:------------------------------------------------------|
-| `GET`  | `/next`           | Generate and return the next waste tracking ID        |
-| `GET`  | `/health`         | Health check endpoint for monitoring                  |
-| `GET`  | `/documentation`  | Interactive Swagger API documentation                 |
+| Method | Endpoint         | Description                                    |
+| :----- | :--------------- | :--------------------------------------------- |
+| `GET`  | `/next`          | Generate and return the next waste tracking ID |
+| `GET`  | `/health`        | Health check endpoint for monitoring           |
+| `GET`  | `/documentation` | Interactive Swagger API documentation          |
 
 ### Example: Generate Waste Tracking ID
 
 **Request:**
+
 ```bash
 curl -X GET http://localhost:3001/next \
   -H "x-cdp-request-id: test-123"
 ```
 
 **Response:**
+
 ```json
 {
   "id": "25ABC123"
@@ -214,6 +222,7 @@ waste-tracking-id-backend/
 ### Available Scripts
 
 **Development:**
+
 ```bash
 npm run dev              # Start with hot reload (nodemon)
 npm run dev:debug        # Start with Node.js debugger enabled
@@ -221,12 +230,14 @@ npm run docker:dev       # Run in Docker development mode
 ```
 
 **Testing:**
+
 ```bash
 npm test                 # Run all tests with coverage
 npm run test:watch       # Run tests in watch mode
 ```
 
 **Code Quality:**
+
 ```bash
 npm run lint             # Run ESLint
 npm run lint:fix         # Auto-fix linting issues
@@ -235,11 +246,13 @@ npm run format:check     # Check code formatting
 ```
 
 **Production:**
+
 ```bash
 npm start                # Start in production mode
 ```
 
 **Git Hooks:**
+
 ```bash
 npm run setup:husky               # Initialise Husky git hooks
 npm run git:pre-commit-hook       # Run pre-commit validation manually
@@ -254,6 +267,7 @@ npm test
 ```
 
 The project includes comprehensive unit tests for:
+
 - ID generation logic
 - API endpoints
 - Configuration validation
