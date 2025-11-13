@@ -14,7 +14,6 @@ A Node.js microservice built on the DEFRA Core Delivery Platform (CDP) that gene
   - [Development Without Docker](#development-without-docker)
   - [Verify Setup](#verify-setup)
 - [API Endpoints](#api-endpoints)
-- [Project Structure](#project-structure)
 - [Development](#development)
   - [Available Scripts](#available-scripts)
   - [Running Tests](#running-tests)
@@ -56,25 +55,25 @@ The waste-tracking-id-backend service provides:
 
 ## Technology Stack
 
-- **Runtime**: Node.js v22+
-- **Framework**: Hapi.js v21.3.12
-- **Database**: MongoDB v6.10.0
-- **ID Generation**: Sqids v0.1.0
-- **Validation**: Joi v17.13.3
-- **Configuration**: Convict v6.2.4
-- **Logging**: Pino v9.5.0 (ECS format)
-- **Testing**: Jest v29.7.0
-- **Locking**: mongo-locks v3.0.2
-- **Metrics**: AWS Embedded Metrics v4.2.0
-- **API Documentation**: hapi-swagger v17.3.2
-- **Linting**: ESLint v9.22.0 with neostandard
-- **Formatting**: Prettier v3.3.3
+- **Runtime**: Node.js
+- **Framework**: Hapi.js
+- **Database**: MongoDB
+- **ID Generation**: Sqids
+- **Validation**: Joi
+- **Configuration**: Convict
+- **Logging**: Pino (ECS format)
+- **Testing**: Jest
+- **Locking**: mongo-locks
+- **Metrics**: AWS Embedded Metrics
+- **API Documentation**: hapi-swagger
+- **Linting**: ESLint with neostandard
+- **Formatting**: Prettier
 
 ## Prerequisites
 
-- Node.js `>= v22.13.1`
-- npm `>= v11`
-- MongoDB `>= v6`
+- Node.js (see .nvmrc for required version)
+- npm
+- MongoDB
 - Docker and Docker Compose (for containerised development)
 
 We recommend using [nvm](https://github.com/creationix/nvm) (Node Version Manager) to manage Node.js versions.
@@ -105,7 +104,7 @@ We recommend using [nvm](https://github.com/creationix/nvm) (Node Version Manage
 
 The easiest way to run the service locally with all dependencies:
 
-1. Start all services (MongoDB, Redis, LocalStack, and the application):
+1. Start all services (MongoDB, LocalStack, and the application):
 
    ```bash
    docker compose up --build -d
@@ -179,44 +178,6 @@ curl -X GET http://localhost:3001/next \
 }
 ```
 
-## Project Structure
-
-```
-waste-tracking-id-backend/
-├── src/
-│   ├── common/                    # Shared utilities and helpers
-│   │   └── helpers/
-│   │       ├── convict/           # Configuration validation
-│   │       ├── logging/           # Logger and request logging
-│   │       ├── proxy/             # HTTP proxy setup
-│   │       ├── secure-context/    # CA certificate management
-│   │       ├── fail-action.js     # Validation error handling
-│   │       ├── metrics.js         # CloudWatch metrics integration
-│   │       ├── mongodb.js         # MongoDB connection plugin
-│   │       ├── pulse.js           # Graceful shutdown handlers
-│   │       ├── request-tracing.js # CDP request tracing plugin
-│   │       └── start-server.js    # Server startup logic
-│   ├── plugins/
-│   │   └── router.js              # Route registration plugin
-│   ├── routes/
-│   │   ├── health.js              # Health check endpoint
-│   │   ├── next.js                # ID generation endpoint
-│   │   └── *.test.js              # Route tests
-│   ├── config.js                  # Application configuration (Convict)
-│   ├── index.js                   # Application entry point
-│   ├── server.js                  # Hapi server setup
-│   └── token-id-generator.js      # ID generation logic with Sqids
-├── compose/                       # Docker Compose configuration
-│   ├── aws.env                    # AWS LocalStack environment
-│   └── start-localstack.sh        # LocalStack initialisation script
-├── .husky/                        # Git hooks
-├── Dockerfile                     # Multi-stage Docker build
-├── compose.yml                    # Docker Compose services definition
-├── jest.config.js                 # Jest test configuration
-├── eslint.config.js               # ESLint configuration
-└── package.json                   # Dependencies and scripts
-```
-
 ## Development
 
 ### Available Scripts
@@ -277,7 +238,7 @@ Coverage reports are generated in the `coverage/` directory.
 
 ### Code Quality
 
-This project follows the [DEFRA code standards](CLAUDE.md) which include:
+This project follows DEFRA code standards. Before committing:
 
 - **ESLint**: Uses neostandard configuration for consistent code style
 - **Prettier**: Enforces code formatting rules
@@ -399,7 +360,6 @@ docker run -e PORT=3001 -p 3001:3001 waste-tracking-id-backend
 The `compose.yml` file provides a complete local development environment with:
 
 - **LocalStack**: AWS services emulation (S3, SQS)
-- **Redis**: Caching layer (if needed)
 - **MongoDB**: Database for counter storage
 - **waste-tracking-id-backend**: The application service
 
