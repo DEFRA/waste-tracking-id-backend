@@ -321,6 +321,8 @@ The service supports the following environments:
 - **local**: Local development environment
 - **dev**: Development environment on CDP
 - **test**: Testing environment on CDP
+- **perf-test**: Performance testing environment on CDP
+- **ext-test**: External testing environment on CDP
 - **prod**: Production environment on CDP
 
 Configuration is managed through environment variables and the Convict library. See `src/config.js` for all available configuration options.
