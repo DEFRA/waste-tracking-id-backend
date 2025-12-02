@@ -5,6 +5,7 @@ import HapiSwagger from 'hapi-swagger'
 
 import { config } from './config.js'
 import { router } from './plugins/router.js'
+import { serviceAuth } from './plugins/service-auth.js'
 import { requestLogger } from './common/helpers/logging/request-logger.js'
 import { mongoDb } from './common/helpers/mongodb.js'
 import { failAction } from './common/helpers/fail-action.js'
@@ -57,6 +58,7 @@ async function createServer() {
   // secureContext  - loads CA certificates from environment config
   // pulse          - provides shutdown handlers
   // mongoDb        - sets up mongo connection pool and attaches to `server` and `request` objects
+  // serviceAuth    - service-to-service authentication
   // router         - routes used in the app
   await server.register([
     Inert,
@@ -65,6 +67,7 @@ async function createServer() {
       plugin: HapiSwagger,
       options: swaggerOptions
     },
+    serviceAuth,
     requestLogger,
     requestTracing,
     secureContext,

@@ -1,7 +1,9 @@
 import { createServer } from '../server.js'
+import { config } from '../config.js'
 
 describe('Next Endpoint', () => {
   let server
+  const validAuthHeader = `Bearer ${config.get('serviceAuthToken')}`
 
   beforeEach(async () => {
     server = await createServer()
@@ -11,10 +13,34 @@ describe('Next Endpoint', () => {
     await server.stop()
   })
 
-  test('GET /next returns waste tracking ID', async () => {
+  test('GET /next returns 401 without auth header', async () => {
     const response = await server.inject({
       method: 'GET',
       url: '/next'
+    })
+
+    expect(response.statusCode).toBe(401)
+  })
+
+  test('GET /next returns 401 with invalid token', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/next',
+      headers: {
+        authorization: 'Bearer invalid-token'
+      }
+    })
+
+    expect(response.statusCode).toBe(401)
+  })
+
+  test('GET /next returns waste tracking ID with valid auth', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/next',
+      headers: {
+        authorization: validAuthHeader
+      }
     })
 
     expect(response.statusCode).toBe(200)
