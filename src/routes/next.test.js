@@ -3,7 +3,8 @@ import { config } from '../config.js'
 
 describe('Next Endpoint', () => {
   let server
-  const validAuthHeader = `Bearer ${config.get('serviceAuthToken')}`
+  const validToken = config.get('serviceAuthToken')
+  const validAuthHeader = `Basic ${Buffer.from(`service:${validToken}`).toString('base64')}`
 
   beforeEach(async () => {
     server = await createServer()
@@ -23,11 +24,12 @@ describe('Next Endpoint', () => {
   })
 
   test('GET /next returns 401 with invalid token', async () => {
+    const invalidAuthHeader = `Basic ${Buffer.from('service:invalid-token').toString('base64')}`
     const response = await server.inject({
       method: 'GET',
       url: '/next',
       headers: {
-        authorization: 'Bearer invalid-token'
+        authorization: invalidAuthHeader
       }
     })
 
