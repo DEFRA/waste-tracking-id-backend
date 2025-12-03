@@ -1,10 +1,9 @@
 import { createServer } from '../server.js'
-import { config } from '../config.js'
 
 describe('Next Endpoint', () => {
   let server
-  const validToken = config.get('serviceAuthToken')
-  const validAuthHeader = `Basic ${Buffer.from(`service:${validToken}`).toString('base64')}`
+  const validClientId = 'test-client-id'
+  const validAuthHeader = `Basic ${Buffer.from(`${validClientId}:`).toString('base64')}`
 
   beforeEach(async () => {
     server = await createServer()
@@ -23,13 +22,13 @@ describe('Next Endpoint', () => {
     expect(response.statusCode).toBe(401)
   })
 
-  test('GET /next returns 401 with invalid token', async () => {
-    const invalidAuthHeader = `Basic ${Buffer.from('service:invalid-token').toString('base64')}`
+  test('GET /next returns 401 with empty clientId', async () => {
+    const emptyClientIdHeader = `Basic ${Buffer.from(':').toString('base64')}`
     const response = await server.inject({
       method: 'GET',
       url: '/next',
       headers: {
-        authorization: invalidAuthHeader
+        authorization: emptyClientIdHeader
       }
     })
 
