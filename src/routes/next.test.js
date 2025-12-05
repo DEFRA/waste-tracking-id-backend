@@ -1,9 +1,17 @@
 import { createServer } from '../server.js'
+import { config } from '../config.js'
 
 describe('Next Endpoint', () => {
   let server
-  const validClientId = 'test-client-id'
-  const validAuthHeader = `Basic ${Buffer.from(`${validClientId}:`).toString('base64')}`
+  const validUsername = 'waste-movement-external-api'
+  const validPassword = 'test-secret'
+  const validAuthHeader = `Basic ${Buffer.from(`${validUsername}:${validPassword}`).toString('base64')}`
+
+  beforeAll(() => {
+    config.set('serviceCredentials', [
+      { username: validUsername, password: validPassword }
+    ])
+  })
 
   beforeEach(async () => {
     server = await createServer()
