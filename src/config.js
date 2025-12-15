@@ -2,8 +2,10 @@ import convict from 'convict'
 import convictFormatWithValidator from 'convict-format-with-validator'
 
 import { convictValidateMongoUri } from './common/helpers/convict/validate-mongo-uri.js'
+import { convictValidateServiceCredentials } from './common/helpers/convict/validate-service-credentials.js'
 
 convict.addFormat(convictValidateMongoUri)
+convict.addFormat(convictValidateServiceCredentials)
 convict.addFormats(convictFormatWithValidator)
 
 const isProduction = process.env.NODE_ENV === 'production'
@@ -116,6 +118,13 @@ const config = convict({
       default: 'x-cdp-request-id',
       env: 'TRACING_HEADER'
     }
+  },
+  serviceCredentials: {
+    doc: 'Service credentials for authenticating internal service-to-service calls, stored as base64 encoded username=password pairs',
+    format: 'service-credentials',
+    nullable: true,
+    default: null,
+    env: 'ACCESS_CRED_WASTE_MOVEMENT_EXTERNAL_API'
   }
 })
 

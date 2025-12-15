@@ -1,4 +1,5 @@
 import Hapi from '@hapi/hapi'
+import Basic from '@hapi/basic'
 import Inert from '@hapi/inert'
 import Vision from '@hapi/vision'
 import HapiSwagger from 'hapi-swagger'
@@ -50,6 +51,27 @@ async function createServer() {
     },
     documentationPath: '/documentation'
   }
+
+  // Register Basic auth and configure strategy
+  await server.register(Basic)
+
+  const serviceCredentials = config.get('serviceCredentials')
+
+  server.auth.strategy('service-token', 'basic', {
+    validate: async (_request, username, password) => {
+      if (!serviceCredentials) {
+        return { isValid: false, credentials: { username } }
+      }
+
+      const matchingCredential = serviceCredentials.find(
+        (cred) => cred.username === username && cred.password === password
+      )
+
+      return { isValid: !!matchingCredential, credentials: { username } }
+    }
+  })
+
+  server.auth.default('service-token')
 
   // Hapi Plugins:
   // requestLogger  - automatically logs incoming requests
