@@ -13,6 +13,7 @@ import { secureContext } from './common/helpers/secure-context/index.js'
 import { pulse } from './common/helpers/pulse.js'
 import { requestTracing } from './common/helpers/request-tracing.js'
 import { setupProxy } from './common/helpers/proxy/setup-proxy.js'
+import { getEnvVars } from './common/helpers/env-vars.js'
 
 async function createServer() {
   setupProxy()
@@ -55,16 +56,20 @@ async function createServer() {
   // Register Basic auth and configure strategy
   await server.register(Basic)
 
-  const serviceCredentials = config.get('serviceCredentials')
+  const serviceCredentials = getEnvVars('ACCESS_CRED_')
 
   server.auth.strategy('service-token', 'basic', {
     validate: async (_request, username, password) => {
+      console.log({ serviceCredentials, username, password })
+
       if (!serviceCredentials) {
         return { isValid: false, credentials: { username } }
       }
 
+      const base64EncodedCredentials = btoa(`${username}=${password}`)
+
       const matchingCredential = serviceCredentials.find(
-        (cred) => cred.username === username && cred.password === password
+        (cred) => cred === base64EncodedCredentials
       )
 
       return { isValid: !!matchingCredential, credentials: { username } }

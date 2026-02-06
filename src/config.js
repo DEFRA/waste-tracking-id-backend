@@ -118,13 +118,6 @@ const config = convict({
       default: 'x-cdp-request-id',
       env: 'TRACING_HEADER'
     }
-  },
-  serviceCredentials: {
-    doc: 'Service credentials for authenticating internal service-to-service calls, stored as base64 encoded username=password pairs',
-    format: 'service-credentials',
-    nullable: true,
-    default: null,
-    env: 'ACCESS_CRED_WASTE_MOVEMENT_EXTERNAL_API'
   }
 })
 

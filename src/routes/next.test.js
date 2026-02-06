@@ -1,16 +1,23 @@
 import { createServer } from '../server.js'
-import { config } from '../config.js'
 
 describe('Next Endpoint', () => {
   let server
   const validUsername = 'waste-movement-external-api'
-  const validPassword = 'test-secret'
+  const validPassword = '4d5d48cb-456a-470a-8814-eae2758be90d'
   const validAuthHeader = `Basic ${Buffer.from(`${validUsername}:${validPassword}`).toString('base64')}`
+  const originalProcessEnv = process.env
 
   beforeAll(() => {
-    config.set('serviceCredentials', [
-      { username: validUsername, password: validPassword }
-    ])
+    process.env = {
+      ACCESS_CRED_WASTE_MOVEMENT_EXTERNAL_API:
+        'd2FzdGUtbW92ZW1lbnQtZXh0ZXJuYWwtYXBpPTRkNWQ0OGNiLTQ1NmEtNDcwYS04ODE0LWVhZTI3NThiZTkwZA==',
+      ACCESS_CRED_WASTE_MOVEMENT_BACKEND:
+        'd2FzdGUtbW92ZW1lbnQtYmFja2VuZD0yNjZhMmJiZi0xOWEwLTQ3OTUtODI4Zi1kZWI3Njc4MWM3OTc='
+    }
+  })
+
+  afterAll(() => {
+    process.env = originalProcessEnv
   })
 
   beforeEach(async () => {
