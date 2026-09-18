@@ -43,7 +43,7 @@
     "hapi-pulse": "4.0.0",
     "hapi-swagger": "17.3.2",
     "https-proxy-agent": "7.0.5",
-    "joi": "17.13.4",
+    "joi": "18.2.5",
     "mongo-locks": "3.0.2",
     "mongodb": "6.10.0",
     "node-fetch": "3.3.2",
@@ -75,6 +75,7 @@
     "brace-expansion@1": "1.1.18",
     "brace-expansion@2": "2.1.4",
     "brace-expansion@5": "5.0.9",
-    "postcss": "8.5.25"
+    "postcss": "8.5.25",
+    "joi": "$joi"
   }
 }
