@@ -12,7 +12,7 @@ import { secureContext } from './common/helpers/secure-context/index.js'
 import { pulse } from './common/helpers/pulse.js'
 import { requestTracing } from './common/helpers/request-tracing.js'
 import { setupProxy } from './common/helpers/proxy/setup-proxy.js'
-import { basicAuth, getEnvVars } from 'waste-movement-utils'
+import { basicAuth, getEnvVars } from '@defra/waste-movement-utils'
 
 async function createServer() {
   setupProxy()
