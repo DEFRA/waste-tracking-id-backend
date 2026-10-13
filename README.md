@@ -371,6 +371,8 @@ Start all services:
 docker compose up --build -d
 ```
 
+The stack is defined once in digital-waste-tracking-uat ([shared-compose/](https://github.com/DEFRA/digital-waste-tracking-uat/tree/main/shared-compose)) and shared with the other service repos. `compose.yml` includes it and `compose.override-shared.yml` builds this service from your checkout. Its credentials are made-up local-only values, so no `.env` is needed; see `.env.example` for the optional overrides.
+
 View service logs:
 
 ```bash
