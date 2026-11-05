@@ -20,17 +20,7 @@ export const mongoDb = {
 
       const databaseName = options.databaseName
       const db = client.db(databaseName)
-      const locks = db.collection('mongo-locks')
-      // LockManager creates its indexes without waiting. A test server can
-      // close Mongo before they finish, and that rejection exits the process.
-      const createIndex = locks.createIndex.bind(locks)
-      locks.createIndex = (...args) =>
-        createIndex(...args).catch((error) => {
-          if (error?.codeName !== 'InterruptedAtShutdown') {
-            throw error
-          }
-        })
-      const locker = new LockManager(locks)
+      const locker = new LockManager(db.collection('mongo-locks'))
 
       await createIndexes(db)
 
