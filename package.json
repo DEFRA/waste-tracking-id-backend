@@ -45,7 +45,7 @@
     "hapi-pulse": "4.0.0",
     "hapi-swagger": "17.3.2",
     "https-proxy-agent": "7.0.5",
-    "joi": "17.13.8",
+    "joi": "18.3.1",
     "mongo-locks": "3.0.2",
     "mongodb": "6.10.0",
     "node-fetch": "3.3.2",
@@ -71,8 +71,9 @@
   },
   "overrides": {
     "@hapi/hapi": {
-      "@hapi/content": "6.0.2"
+      "@hapi/content": "6.0.3"
     },
+    "joi": "$joi",
     "brace-expansion@1": "1.1.21",
     "brace-expansion@2": "2.1.7",
     "brace-expansion@5": "5.0.12",
